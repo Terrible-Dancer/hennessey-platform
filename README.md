@@ -1,27 +1,19 @@
-# Hennessey Platform V4.2.2 — Render Ready
+# Hennessey Platform V4.2.3 — AI Diagnostics
 
-This package is configured as a Node/Express Web Service for Render.
+This release preserves the V4.2.2 interface and adds safe server-side diagnostics for live AI brief interpretation.
 
-## Render settings
-- Runtime: Node
-- Build command: `npm install`
-- Start command: `npm start`
-- Health check: `/api/health`
-- Server binds to `0.0.0.0` and Render's `PORT`.
-- Secrets are environment variables and are not committed to source control.
+## What changed
+- Logs every `/api/search/interpret` request with a non-secret request tag.
+- Logs configured model and whether a key exists, never the key itself.
+- Logs safe OpenAI status/code/type/message/request ID on failures.
+- Front end displays a useful failure category while retaining local fallback parsing.
+- `/api/health` reports version, configured model, OpenAI configuration state and external-provider state.
+- Default model is `gpt-5.6-luna`.
 
-## Deployment sequence
-1. Create a private GitHub repository.
-2. Upload the contents of this folder to the repository root.
-3. In Render choose New > Web Service and connect the repository.
-4. Use Node runtime, `npm install` as Build Command, and `npm start` as Start Command.
-5. Add `OPENAI_API_KEY` in Render > Environment.
-6. Add `OPENAI_MODEL` only if you want to override the app default.
-7. Leave `PDL_API_KEY` unset until the licensed external-market connector is being activated.
-8. Deploy and open the generated `onrender.com` address.
-9. The platform status badge should show AI connectivity when the OpenAI key is valid.
+## Render
+Root Directory: blank when these files are in the repository root.
+Build: `npm install`
+Start: `npm start`
+Health: `/api/health`
 
-Never put an API key in `index.html`, GitHub, screenshots, or chat.
-
-Before real candidate/client data is stored, add authentication, persistent database storage, role-based access,
-audit logging, encryption, backups, retention/deletion workflows, source provenance and UK GDPR/DPIA controls.
+Keep `OPENAI_API_KEY` only in Render Environment. Do not commit `.env` or API keys.

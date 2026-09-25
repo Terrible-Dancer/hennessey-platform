@@ -1,15 +1,12 @@
 {
-  "name": "hennessey-platform-v4-2",
-  "version": "4.2.0",
+  "name": "hennessey-platform-v4-2-3",
+  "version": "4.2.3",
   "type": "module",
-  "scripts": {
-    "start": "node server.js",
-    "dev": "node --watch server.js"
-  },
+  "scripts": { "start": "node server.js" },
   "dependencies": {
-    "cors": "latest",
-    "dotenv": "latest",
-    "express": "latest",
-    "openai": "latest"
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.21.2",
+    "openai": "^5.19.1"
   }
 }
