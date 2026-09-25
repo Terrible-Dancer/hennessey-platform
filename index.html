@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Hennessey Platform V4.3.0</title>
+<title>Hennessey Platform V4.3.1</title>
 <style>
 :root{--bg:#061b29;--panel:#0a293a;--panel2:#0d3246;--line:#24495b;--orange:#ff5b2d;--text:#f4f7f8;--muted:#9fb5c1;--green:#73d58b;--amber:#f1bb4c;--blue:#6da8dd}
 *{box-sizing:border-box}body{margin:0;background:linear-gradient(135deg,#051824,#082638);color:var(--text);font:14px Arial,sans-serif}
@@ -26,7 +26,7 @@ table{width:100%;border-collapse:collapse}th{text-align:left;color:var(--muted);
 </style>
 </head>
 <body>
-<header><div class="brand"><b>H</b>HENNESSEY</div><div class="version">PLATFORM V4.3.0</div><div class="user"><span id="apiStatus" class="badge amber">API checking…</span> &nbsp; Paul Agar · Administrator</div></header>
+<header><div class="brand"><b>H</b>HENNESSEY</div><div class="version">PLATFORM V4.3.1</div><div class="user"><span id="apiStatus" class="badge amber">API checking…</span> &nbsp; Paul Agar · Administrator</div></header>
 <div class="shell"><aside id="nav"></aside><main>
 
 <section class="page active" id="dashboard">
@@ -50,14 +50,18 @@ table{width:100%;border-collapse:collapse}th{text-align:left;color:var(--muted);
 <h1 class="title">AI Search</h1><div class="sub">Search Hennessey Network and the external market</div>
 <div class="grid two">
 <div class="card"><h2>Search Brief</h2><textarea id="brief">Find an HR Director within 60 miles of Birmingham. Manufacturing or engineering background. £100k–£140k. Multi-site experience essential. PE-backed and transformation experience desirable.</textarea>
-<div class="actions" style="margin-top:10px"><button class="btn primary" onclick="interpret()">Interpret Brief</button><button id="sourceNetwork" class="btn source-btn" onclick="runSearch('network',this)">Hennessey Network</button><button id="sourceExternal" class="btn source-btn" onclick="runSearch('external',this)">External Market</button><button id="sourceBoth" class="btn source-btn" onclick="runSearch('both',this)">Both</button><button class="btn" onclick="saveCurrentSearch()">Save Search</button></div>
+<div class="actions" style="margin-top:10px"><button class="btn primary" onclick="interpret()">Interpret Brief</button><button class="btn" onclick="buildStrategy()">Build Search Strategy</button><button id="sourceNetwork" class="btn source-btn" onclick="runSearch('network',this)">Hennessey Network</button><button id="sourceExternal" class="btn source-btn" onclick="runSearch('external',this)">External Market</button><button id="sourceBoth" class="btn source-btn" onclick="runSearch('both',this)">Both</button><button class="btn" onclick="saveCurrentSearch()">Save Search</button></div>
 <div class="notice" id="searchNotice">External Market uses licensed provider data when PDL is connected; otherwise demonstration results remain clearly labelled. LinkedIn links are provider-supplied and are not scraped by Hennessey Platform.</div></div>
 <div class="card"><h2>Advanced Criteria</h2><div class="fields">
 <div class="field"><label>Function</label><input id="fFunction" value="Human Resources"></div><div class="field"><label>Seniority</label><select id="fSeniority"><option>Manager</option><option>Director</option><option>Head of</option><option>C-Suite</option></select></div>
 <div class="field"><label>Location</label><input id="fLocation" value="Birmingham"></div><div class="field"><label>Radius</label><select id="fRadius"><option>60 miles</option><option>30 miles</option><option>100 miles</option><option>UK-wide</option></select></div>
 <div class="field"><label>Sector</label><select id="fSector"><option>Manufacturing & Engineering</option><option>Defence & Aerospace</option><option>Healthcare & Life Sciences</option><option>Business & Professional Services</option><option>Technology & Digital</option><option>Financial Services</option><option>Energy & Utilities</option><option>Construction & Infrastructure</option><option>Consumer & Retail</option><option>Transport & Logistics</option><option>Public Sector</option></select></div>
 <div class="field"><label>Employment</label><select><option>Permanent</option><option>Interim</option><option>Fractional</option></select></div><div class="field"><label>Minimum</label><input value="£100,000"></div><div class="field"><label>Maximum</label><input value="£140,000"></div>
-</div><div class="chips"><span class="chip must">Essential · Multi-site</span><span class="chip">Desirable · PE-backed</span><span class="chip">Desirable · Transformation</span></div></div>
+</div><div class="chips" id="essentialChips"><span class="chip must">Essential · Multi-site</span></div><div class="chips" id="desirableChips"><span class="chip">Desirable · PE-backed</span><span class="chip">Desirable · Transformation</span></div></div>
+</div>
+<div class="grid two" style="margin-top:12px">
+<div class="card"><div class="toolbar"><div><h2 style="margin:0">Search Strategy</h2><span class="muted">AI research plan before candidate search</span></div><span class="badge" id="strategyStatus">Not built</span></div><div id="strategyPanel"><p class="muted">Click Build Search Strategy to expand titles, sectors, target-company characteristics and exclusions from the brief.</p></div></div>
+<div class="card"><div class="toolbar"><div><h2 style="margin:0">Market Map</h2><span class="muted">Counts are derived from returned search data, never invented by AI</span></div></div><div class="grid three"><div><div class="num" id="mapPool">—</div><span class="muted">Returned pool</span></div><div><div class="num" id="mapCore">—</div><span class="muted">Core evidence</span></div><div><div class="num" id="mapRelationship">—</div><span class="muted">Known relationships</span></div></div><div id="mapBreakdown" class="muted" style="margin-top:12px">Run a search to populate the market map.</div></div>
 </div>
 <div class="card" style="margin-top:12px"><div class="toolbar"><div><h2 style="margin:0">Results</h2><span class="muted" id="resultMeta">Run a search</span></div></div><div id="searchResults"></div></div>
 </section>
@@ -72,7 +76,7 @@ table{width:100%;border-collapse:collapse}th{text-align:left;color:var(--muted);
 
 <section class="page" id="pipeline"><h1 class="title">Talent Pipeline</h1><div class="sub">Candidates progressing through active assignments</div><div id="pipelineBoard" class="pipeline"></div></section>
 
-<section class="page" id="market"><h1 class="title">Market Intelligence</h1><div class="sub">Search-derived executive talent intelligence</div><div class="grid three"><div class="card"><h3>Leadership Movement</h3><div class="num">18</div><p class="muted">Tracked senior moves this month</p></div><div class="card"><h3>Average HRD Base</h3><div class="num">£128k</div><p class="muted">Illustrative Midlands manufacturing benchmark</p></div><div class="card"><h3>Talent Availability</h3><div class="num">Moderate</div><p class="muted">Based on prototype search activity</p></div></div><div class="card" style="margin-top:12px"><h2>Intelligence Notes</h2><textarea id="intelNotes" oninput="localStorage.setItem('h41_intel',this.value)">Manufacturing leadership searches continue to favour multi-site transformation experience. PE-backed exposure remains a differentiator for People Director mandates.</textarea></div></section>
+<section class="page" id="market"><h1 class="title">Market Intelligence</h1><div class="sub">Search-derived executive talent intelligence and relationship context</div><div class="grid three"><div class="card"><h3>Leadership Movement</h3><div class="num">18</div><p class="muted">Tracked senior moves this month</p></div><div class="card"><h3>Average HRD Base</h3><div class="num">£128k</div><p class="muted">Illustrative Midlands manufacturing benchmark</p></div><div class="card"><h3>Talent Availability</h3><div class="num">Moderate</div><p class="muted">Based on prototype search activity</p></div></div><div class="card" style="margin-top:12px"><h2>Intelligence Notes</h2><textarea id="intelNotes" oninput="localStorage.setItem('h41_intel',this.value)">Manufacturing leadership searches continue to favour multi-site transformation experience. PE-backed exposure remains a differentiator for People Director mandates.</textarea></div></section>
 
 <section class="page" id="reports"><h1 class="title">Insights & Reports</h1><div class="sub">Commercial and search performance</div><div class="grid three"><div class="card"><h3>Revenue YTD</h3><div class="num">£1.2m</div></div><div class="card"><h3>Average Fee</h3><div class="num">£46k</div></div><div class="card"><h3>Placement Conversion</h3><div class="num">68%</div></div></div><div class="card" style="margin-top:12px"><h2>Report Centre</h2><div class="actions"><button class="btn" onclick="alert('Prototype: Board report queued for export.')">Board Performance Report</button><button class="btn" onclick="alert('Prototype: Mandate report queued for export.')">Mandate Performance</button><button class="btn" onclick="alert('Prototype: Client report queued for export.')">Client Revenue</button><button class="btn" onclick="alert('Prototype: Talent report queued for export.')">Talent Intelligence</button></div></div></section>
 
@@ -82,7 +86,7 @@ table{width:100%;border-collapse:collapse}th{text-align:left;color:var(--muted);
 <div class="card"><h2>1 · Run as an application</h2><p>V4.2.1 includes a Node server. Live AI cannot run when the HTML file is opened directly.</p>
 <div class="notice"><b>Local test:</b><br><code>npm install</code><br><code>npm start</code><br>Then open <code>http://localhost:3001</code>.</div>
 <h3>Deployment</h3><p class="muted">Deploy this folder to a Node-compatible host. Add environment variables in the host's secure settings rather than editing the HTML.</p></div>
-<div class="card"><h2>2 · Secure credentials</h2><p><b>OPENAI_API_KEY</b><br><span class="muted">Enables live AI brief interpretation.</span></p><p><b>OPENAI_MODEL</b><br><span class="muted">Configured server-side for live AI interpretation.</span></p><p><b>PDL_API_KEY</b><br><span class="muted">Enables the licensed external-market adapter after provider validation.</span></p><div class="notice">Never place API keys in browser code or send them in chat.</div></div>
+<div class="card"><h2>2 · Secure credentials</h2><p><b>OPENAI_API_KEY</b><br><span class="muted">Enables live AI brief interpretation.</span></p><p><b>OPENAI_MODEL</b><br><span class="muted">Configured server-side for live AI interpretation.</span></p><p><b>External Provider Layer</b><br><span class="muted">Provider-independent architecture. People Data Labs is the first implemented adapter; Coresignal and Crustdata are reserved adapters for comparative testing.</span></p><p><b>PDL_API_KEY</b><br><span class="muted">Enables the current PDL adapter. Provider credentials remain server-side.</span></p><div class="notice">Never place API keys in browser code or send them in chat.</div></div>
 </div>
 <div class="card" style="margin-top:12px"><h2>Connection Test</h2><div class="actions"><button class="btn primary" onclick="checkAPI();setTimeout(()=>alert('Connection status refreshed. See the badge at the top right.'),300)">Test Connections</button></div><p class="muted">The top-right badge changes from DEMO MODE to API CONNECTED / AI CONNECTED / LIVE SEARCH READY as services become available.</p></div>
 </section>
@@ -169,6 +173,27 @@ async function interpret(){
    searchNotice.textContent='Live AI request failed: '+msg+' Local interpretation has been applied so you can continue.';
  }
 }
+async function buildStrategy(){
+ strategyStatus.textContent='Building…'; strategyPanel.innerHTML='<p class="muted">Creating research strategy…</p>';
+ try{
+  const criteria={brief:brief.value,function:fFunction.value,seniority:fSeniority.value,location:fLocation.value,radius:fRadius.value,sector:fSector.value,essential:[...document.querySelectorAll('#essentialChips .chip')].map(x=>x.textContent.replace(/^Essential · /,'')),desirable:[...document.querySelectorAll('#desirableChips .chip')].map(x=>x.textContent.replace(/^Desirable · /,''))};
+  const r=await fetch('/api/search/strategy',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(criteria)}); const d=await r.json(); if(!r.ok)throw new Error(d.error||'Strategy unavailable');
+  strategyStatus.textContent='AI strategy ready';
+  strategyPanel.innerHTML=`<h3>Target titles</h3><div class="chips">${d.target_titles.map(x=>`<span class="chip">${esc(x)}</span>`).join('')}</div><h3>Adjacent sectors</h3><div class="chips">${d.adjacent_sectors.map(x=>`<span class="chip">${esc(x)}</span>`).join('')}</div><h3>Target organisation characteristics</h3><div class="chips">${d.target_company_characteristics.map(x=>`<span class="chip">${esc(x)}</span>`).join('')}</div><h3>Evidence priorities</h3><div class="chips">${d.evidence_priorities.map(x=>`<span class="chip must">${esc(x)}</span>`).join('')}</div>${d.exclusions.length?`<h3>Exclusions</h3><div class="chips">${d.exclusions.map(x=>`<span class="chip">${esc(x)}</span>`).join('')}</div>`:''}`;
+ }catch(e){strategyStatus.textContent='Unavailable';strategyPanel.innerHTML=`<div class="notice">${esc(e.message)}</div>`}
+}
+function relationshipFor(c){
+ const known=candidates.find(x=>String(x.name).toLowerCase()===String(c.name).toLowerCase() || (x.company&&c.company&&String(x.company).toLowerCase()===String(c.company).toLowerCase()&&String(x.role).toLowerCase()===String(c.role).toLowerCase()));
+ if(known)return {known:true,text:`Known Hennessey relationship · ${known.status} · ${known.source}`};
+ return {known:false,text:'No Hennessey relationship evidenced'};
+}
+function updateMarketMap(arr,liveExternal){
+ const rel=arr.filter(c=>relationshipFor(c).known).length;
+ const core=arr.filter(c=>(c.skills||[]).some(x=>/Verified/i.test(String(x))) || (c.skills||[]).length>=2).length;
+ mapPool.textContent=arr.length;mapCore.textContent=core;mapRelationship.textContent=rel;
+ const providers=[...new Set(arr.map(c=>c.provider||c.source).filter(Boolean))];
+ mapBreakdown.textContent=`${liveExternal?'Live licensed':'Prototype'} data · Sources: ${providers.join(', ')||'Hennessey Network'} · ${arr.length-rel} profiles have no evidenced Hennessey relationship yet.`;
+}
 async function runSearch(mode,btn){
  document.querySelectorAll('.source-btn').forEach(b=>b.classList.remove('primary'));if(btn)btn.classList.add('primary');
  let arr=mode==='network'?demoNetwork:mode==='external'?demoExternal:candidates;
@@ -188,9 +213,9 @@ async function runSearch(mode,btn){
      }
    }catch(e){}
  }
- resultMeta.textContent=`${arr.length} ${liveExternal?'live':'demonstration'} results · ${mode==='both'?'Network + External Market':mode==='network'?'Hennessey Network':'External Market'}`;
+ resultMeta.textContent=`${arr.length} ${liveExternal?'live':'demonstration'} results · ${mode==='both'?'Network + External Market':mode==='network'?'Hennessey Network':'External Market'}`; updateMarketMap(arr,liveExternal);
  searchNotice.textContent=liveExternal?'Live licensed external-market results returned. LinkedIn buttons use provider-supplied profile URLs; the platform does not scrape LinkedIn.':'External Market provider is not connected. Demonstration results are shown and clearly labelled.';
- searchResults.innerHTML=arr.map(c=>`<div class="search-result"><div><b>${esc(c.name)}</b><div class="muted">${esc(c.role)} · ${esc(c.company)} · ${esc(c.loc)}</div><div class="evidence">${(c.skills||[]).map((s,i)=>`<span class="ev">${String(s).includes('Verified ·')?'✓ ':i<2?'✓ Verified · ':'△ Inferred · '}${esc(String(s).replace(/^Verified · /,''))}</span>`).join('')}</div></div><div>${esc(c.provider||c.source)}</div><div class="score">${c.score||'—'}${c.score?'%':''}</div><div class="actions">${c.linkedin_url?`<button class="btn small" onclick="window.open('${esc(c.linkedin_url)}','_blank','noopener')">LinkedIn</button>`:''}${String(c.id).startsWith('ext')?`<button class="btn small" onclick="saveExternal('${encodeURIComponent(JSON.stringify(c))}')">Save to Network</button>`:`<button class="btn small" onclick="openCandidate(${c.id})">Profile</button>`}</div></div>`).join('');
+ searchResults.innerHTML=arr.map(c=>`<div class="search-result"><div><b>${esc(c.name)}</b><div class="muted">${esc(c.role)} · ${esc(c.company)} · ${esc(c.loc)}</div><div class="evidence">${(c.skills||[]).map((s,i)=>`<span class="ev">${String(s).includes('Verified ·')?'✓ ':i<2?'✓ Verified · ':'△ Inferred · '}${esc(String(s).replace(/^Verified · /,''))}</span>`).join('')}</div></div><div>${esc(c.provider||c.source)}<br><span class="muted" style="font-size:11px">${esc(relationshipFor(c).text)}</span></div><div class="score">${c.score||'—'}${c.score?'%':''}</div><div class="actions">${c.linkedin_url?`<button class="btn small" onclick="window.open('${esc(c.linkedin_url)}','_blank','noopener')">LinkedIn</button>`:''}${String(c.id).startsWith('ext')?`<button class="btn small" onclick="saveExternal('${encodeURIComponent(JSON.stringify(c))}')">Save to Network</button>`:`<button class="btn small" onclick="openCandidate(${c.id})">Profile</button>`}</div></div>`).join('');
 }
 function saveExternal(encoded){
  const c=JSON.parse(decodeURIComponent(encoded));c.id=Date.now();c.source='Hennessey Network';c.status='Identified';candidates.push(c);persist();renderAll();searchNotice.textContent=c.name+' saved to Hennessey Network.';

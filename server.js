@@ -9,7 +9,7 @@ app.use(cors());
 app.use(express.json({ limit: "1mb" }));
 app.use(express.static("."));
 
-const VERSION = "4.3.0";
+const VERSION = "4.3.1";
 const model = process.env.OPENAI_MODEL || "gpt-5.6-luna";
 const hasOpenAI = Boolean(process.env.OPENAI_API_KEY);
 const hasExternal = Boolean(process.env.PDL_API_KEY);
@@ -29,6 +29,32 @@ function publicError(err) {
 }
 
 app.get("/api/health", (req, res) => res.json({ ok: true, version: VERSION, openai_configured: hasOpenAI, openai_model: model, external_provider_configured: hasExternal, external_provider: hasExternal ? "People Data Labs" : null }));
+
+
+app.get("/api/providers", (req,res) => res.json({
+  architecture:"provider-independent",
+  active_adapter: hasExternal ? "People Data Labs" : null,
+  adapters:[
+    {id:"pdl",name:"People Data Labs",implemented:true,configured:hasExternal},
+    {id:"coresignal",name:"Coresignal",implemented:false,configured:false},
+    {id:"crustdata",name:"Crustdata",implemented:false,configured:false}
+  ],
+  note:"External providers are normalised into a common Hennessey candidate schema. LinkedIn/profile URLs are provider-supplied; the platform does not scrape LinkedIn."
+}));
+
+app.post("/api/search/strategy", async (req,res) => {
+ const tag=`strategy-${Date.now().toString(36)}`; const c=req.body||{};
+ console.log(`[AI STRATEGY] ${tag} received; model=${model}; function=${c.function||""}; seniority=${c.seniority||""}`);
+ if(!openai) return res.status(503).json({error:"OpenAI is not configured on the server."});
+ const schema={type:"object",additionalProperties:false,properties:{target_titles:{type:"array",items:{type:"string"}},adjacent_sectors:{type:"array",items:{type:"string"}},target_company_characteristics:{type:"array",items:{type:"string"}},evidence_priorities:{type:"array",items:{type:"string"}},exclusions:{type:"array",items:{type:"string"}}},required:["target_titles","adjacent_sectors","target_company_characteristics","evidence_priorities","exclusions"]};
+ try{
+  const response=await openai.responses.create({model,reasoning:{effort:"low"},input:[
+   {role:"system",content:[{type:"input_text",text:"You are an executive-search research strategist. Expand a search brief into a concise research strategy. Preserve the user's essential/desirable distinctions. Suggest adjacent job titles and sectors only where professionally plausible. Target-company characteristics may include ownership, scale, multi-site or international profile when relevant. Do not invent candidate counts, named people, or factual claims about companies. Exclusions must come from the brief or be safe search-noise exclusions, not subjective discrimination."}]},
+   {role:"user",content:[{type:"input_text",text:JSON.stringify(c)}]}
+  ],text:{format:{type:"json_schema",name:"search_strategy",strict:true,schema}}});
+  const parsed=JSON.parse(response.output_text); console.log(`[AI STRATEGY] ${tag} success`); res.json(parsed);
+ }catch(err){const safe=safeError(err);console.error(`[AI STRATEGY] ${tag} failure:`,JSON.stringify(safe));const pub=publicError(err);res.status(safe.status&&Number.isInteger(safe.status)?safe.status:502).json({error:pub.message,category:pub.category});}
+});
 
 app.post("/api/search/interpret", async (req, res) => {
   const requestTag = `interpret-${Date.now().toString(36)}`;
