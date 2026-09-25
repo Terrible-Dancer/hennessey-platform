@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Hennessey Platform V4.2.3</title>
+<title>Hennessey Platform V4.3.0</title>
 <style>
 :root{--bg:#061b29;--panel:#0a293a;--panel2:#0d3246;--line:#24495b;--orange:#ff5b2d;--text:#f4f7f8;--muted:#9fb5c1;--green:#73d58b;--amber:#f1bb4c;--blue:#6da8dd}
 *{box-sizing:border-box}body{margin:0;background:linear-gradient(135deg,#051824,#082638);color:var(--text);font:14px Arial,sans-serif}
@@ -26,7 +26,7 @@ table{width:100%;border-collapse:collapse}th{text-align:left;color:var(--muted);
 </style>
 </head>
 <body>
-<header><div class="brand"><b>H</b>HENNESSEY</div><div class="version">PLATFORM V4.2.3</div><div class="user"><span id="apiStatus" class="badge amber">API checking…</span> &nbsp; Paul Agar · Administrator</div></header>
+<header><div class="brand"><b>H</b>HENNESSEY</div><div class="version">PLATFORM V4.3.0</div><div class="user"><span id="apiStatus" class="badge amber">API checking…</span> &nbsp; Paul Agar · Administrator</div></header>
 <div class="shell"><aside id="nav"></aside><main>
 
 <section class="page active" id="dashboard">
@@ -51,7 +51,7 @@ table{width:100%;border-collapse:collapse}th{text-align:left;color:var(--muted);
 <div class="grid two">
 <div class="card"><h2>Search Brief</h2><textarea id="brief">Find an HR Director within 60 miles of Birmingham. Manufacturing or engineering background. £100k–£140k. Multi-site experience essential. PE-backed and transformation experience desirable.</textarea>
 <div class="actions" style="margin-top:10px"><button class="btn primary" onclick="interpret()">Interpret Brief</button><button id="sourceNetwork" class="btn source-btn" onclick="runSearch('network',this)">Hennessey Network</button><button id="sourceExternal" class="btn source-btn" onclick="runSearch('external',this)">External Market</button><button id="sourceBoth" class="btn source-btn" onclick="runSearch('both',this)">Both</button><button class="btn" onclick="saveCurrentSearch()">Save Search</button></div>
-<div class="notice" id="searchNotice">External Market uses clearly labelled demonstration data until a licensed provider is connected.</div></div>
+<div class="notice" id="searchNotice">External Market uses licensed provider data when PDL is connected; otherwise demonstration results remain clearly labelled. LinkedIn links are provider-supplied and are not scraped by Hennessey Platform.</div></div>
 <div class="card"><h2>Advanced Criteria</h2><div class="fields">
 <div class="field"><label>Function</label><input id="fFunction" value="Human Resources"></div><div class="field"><label>Seniority</label><select id="fSeniority"><option>Manager</option><option>Director</option><option>Head of</option><option>C-Suite</option></select></div>
 <div class="field"><label>Location</label><input id="fLocation" value="Birmingham"></div><div class="field"><label>Radius</label><select id="fRadius"><option>60 miles</option><option>30 miles</option><option>100 miles</option><option>UK-wide</option></select></div>
@@ -82,7 +82,7 @@ table{width:100%;border-collapse:collapse}th{text-align:left;color:var(--muted);
 <div class="card"><h2>1 · Run as an application</h2><p>V4.2.1 includes a Node server. Live AI cannot run when the HTML file is opened directly.</p>
 <div class="notice"><b>Local test:</b><br><code>npm install</code><br><code>npm start</code><br>Then open <code>http://localhost:3001</code>.</div>
 <h3>Deployment</h3><p class="muted">Deploy this folder to a Node-compatible host. Add environment variables in the host's secure settings rather than editing the HTML.</p></div>
-<div class="card"><h2>2 · Secure credentials</h2><p><b>OPENAI_API_KEY</b><br><span class="muted">Enables live AI brief interpretation.</span></p><p><b>OPENAI_MODEL</b><br><span class="muted">Defaults to gpt-6-luna.</span></p><p><b>PDL_API_KEY</b><br><span class="muted">Enables the licensed external-market adapter after provider validation.</span></p><div class="notice">Never place API keys in browser code or send them in chat.</div></div>
+<div class="card"><h2>2 · Secure credentials</h2><p><b>OPENAI_API_KEY</b><br><span class="muted">Enables live AI brief interpretation.</span></p><p><b>OPENAI_MODEL</b><br><span class="muted">Configured server-side for live AI interpretation.</span></p><p><b>PDL_API_KEY</b><br><span class="muted">Enables the licensed external-market adapter after provider validation.</span></p><div class="notice">Never place API keys in browser code or send them in chat.</div></div>
 </div>
 <div class="card" style="margin-top:12px"><h2>Connection Test</h2><div class="actions"><button class="btn primary" onclick="checkAPI();setTimeout(()=>alert('Connection status refreshed. See the badge at the top right.'),300)">Test Connections</button></div><p class="muted">The top-right badge changes from DEMO MODE to API CONNECTED / AI CONNECTED / LIVE SEARCH READY as services become available.</p></div>
 </section>
@@ -176,21 +176,21 @@ async function runSearch(mode,btn){
  if(mode==='external'||mode==='both'){
    try{
      searchNotice.textContent='Searching external market…';
-     const criteria={function:fFunction.value,seniority:fSeniority.value,locations:[fLocation.value],radius:fRadius.value,sector:fSector.value};
+     const criteria={function:fFunction.value,seniority:fSeniority.value,locations:[fLocation.value],radius:fRadius.value,sector:fSector.value,essential:[...document.querySelectorAll('#essentialChips .chip')].map(x=>x.textContent),desirable:[...document.querySelectorAll('#desirableChips .chip')].map(x=>x.textContent)};
      const r=await fetch('/api/search/external',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(criteria)});
      if(r.ok){
        const d=await r.json();
        if(Array.isArray(d.candidates)&&d.candidates.length){
          liveExternal=true;
-         const ext=d.candidates.map((x,i)=>({id:'ext'+i,name:x.name||'Profile',role:x.role||'',company:x.company||'',sector:x.sector||'',loc:x.location||'',status:'Identified',source:'External Market',score:x.score||0,skills:x.evidence||[],url:x.profile_url||''}));
+         const ext=d.candidates.map((x,i)=>({id:'ext'+i,name:x.name||'Profile',role:x.role||'',company:x.company||'',sector:x.sector||'',loc:x.location||'',status:'Identified',source:'External Market',score:x.score||0,skills:x.evidence||[],url:x.profile_url||'',linkedin_url:x.linkedin_url||x.profile_url||'',provider:x.data_source||d.provider||'Licensed Provider'}));
          arr=mode==='external'?ext:[...demoNetwork,...ext];
        }
      }
    }catch(e){}
  }
  resultMeta.textContent=`${arr.length} ${liveExternal?'live':'demonstration'} results · ${mode==='both'?'Network + External Market':mode==='network'?'Hennessey Network':'External Market'}`;
- searchNotice.textContent=liveExternal?'Live external provider results returned.':'External Market is not connected in this preview. Demonstration results are shown and clearly labelled.';
- searchResults.innerHTML=arr.map(c=>`<div class="search-result"><div><b>${esc(c.name)}</b><div class="muted">${esc(c.role)} · ${esc(c.company)} · ${esc(c.loc)}</div><div class="evidence">${(c.skills||[]).map((s,i)=>`<span class="ev">${i<2?'✓ Verified':'△ Inferred'} · ${esc(s)}</span>`).join('')}</div></div><div>${esc(c.source)}</div><div class="score">${c.score||'—'}${c.score?'%':''}</div><div>${String(c.id).startsWith('ext')?`<button class="btn small" onclick="saveExternal('${encodeURIComponent(JSON.stringify(c))}')">Save to Network</button>`:`<button class="btn small" onclick="openCandidate(${c.id})">Profile</button>`}</div></div>`).join('');
+ searchNotice.textContent=liveExternal?'Live licensed external-market results returned. LinkedIn buttons use provider-supplied profile URLs; the platform does not scrape LinkedIn.':'External Market provider is not connected. Demonstration results are shown and clearly labelled.';
+ searchResults.innerHTML=arr.map(c=>`<div class="search-result"><div><b>${esc(c.name)}</b><div class="muted">${esc(c.role)} · ${esc(c.company)} · ${esc(c.loc)}</div><div class="evidence">${(c.skills||[]).map((s,i)=>`<span class="ev">${String(s).includes('Verified ·')?'✓ ':i<2?'✓ Verified · ':'△ Inferred · '}${esc(String(s).replace(/^Verified · /,''))}</span>`).join('')}</div></div><div>${esc(c.provider||c.source)}</div><div class="score">${c.score||'—'}${c.score?'%':''}</div><div class="actions">${c.linkedin_url?`<button class="btn small" onclick="window.open('${esc(c.linkedin_url)}','_blank','noopener')">LinkedIn</button>`:''}${String(c.id).startsWith('ext')?`<button class="btn small" onclick="saveExternal('${encodeURIComponent(JSON.stringify(c))}')">Save to Network</button>`:`<button class="btn small" onclick="openCandidate(${c.id})">Profile</button>`}</div></div>`).join('');
 }
 function saveExternal(encoded){
  const c=JSON.parse(decodeURIComponent(encoded));c.id=Date.now();c.source='Hennessey Network';c.status='Identified';candidates.push(c);persist();renderAll();searchNotice.textContent=c.name+' saved to Hennessey Network.';
