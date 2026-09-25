@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: hennessey-platform
+    runtime: node
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /api/health
+    envVars:
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: OPENAI_MODEL
+        value: gpt-6-luna
+      - key: PDL_API_KEY
+        sync: false
+      - key: EXTERNAL_RESULT_LIMIT
+        value: "20"

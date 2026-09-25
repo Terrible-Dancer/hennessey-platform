@@ -1,0 +1,205 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Hennessey Platform V4.2.2</title>
+<style>
+:root{--bg:#061b29;--panel:#0a293a;--panel2:#0d3246;--line:#24495b;--orange:#ff5b2d;--text:#f4f7f8;--muted:#9fb5c1;--green:#73d58b;--amber:#f1bb4c;--blue:#6da8dd}
+*{box-sizing:border-box}body{margin:0;background:linear-gradient(135deg,#051824,#082638);color:var(--text);font:14px Arial,sans-serif}
+button,input,select,textarea{font:inherit}header{height:72px;display:flex;align-items:center;padding:0 24px;border-bottom:1px solid var(--line);background:#051a28;position:sticky;top:0;z-index:10}
+.brand{font:24px Georgia,serif;letter-spacing:4px}.brand b{font-size:38px;color:var(--orange);margin-right:9px}.version{margin-left:16px;color:var(--orange);letter-spacing:2px}.user{margin-left:auto;color:var(--muted)}
+.shell{display:grid;grid-template-columns:235px 1fr;min-height:calc(100vh - 72px)}
+aside{border-right:1px solid var(--line);padding:20px 10px;background:rgba(5,26,40,.8)}.nav{padding:12px 14px;border-radius:7px;margin:3px 0;cursor:pointer;color:#d7e2e8}.nav:hover,.nav.active{background:#10384e}.nav.active{border-left:4px solid var(--orange)}
+main{padding:24px;max-width:1600px;width:100%}.page{display:none}.page.active{display:block}.title{font:40px Georgia,serif;margin:0}.sub{color:var(--muted);margin:5px 0 18px}
+.grid{display:grid;gap:12px}.kpis{grid-template-columns:repeat(5,1fr)}.two{grid-template-columns:1.2fr .8fr}.three{grid-template-columns:repeat(3,1fr)}.card{background:rgba(9,40,57,.9);border:1px solid var(--line);border-radius:10px;padding:16px}.card h2,.card h3{margin-top:0}.kpi .num{font:30px Georgia,serif;margin-top:8px}
+.btn{border:1px solid #456a7c;background:#12394e;color:white;padding:9px 12px;border-radius:7px;cursor:pointer}.btn.primary{background:var(--orange);border-color:var(--orange);font-weight:bold}.btn.small{padding:6px 8px;font-size:12px}.actions{display:flex;gap:8px;flex-wrap:wrap}
+input,select,textarea{width:100%;background:#061e2c;color:white;border:1px solid #31576a;border-radius:6px;padding:9px}textarea{min-height:105px;resize:vertical}.fields{display:grid;grid-template-columns:repeat(4,1fr);gap:9px}.field label{display:block;color:var(--muted);font-size:12px;margin-bottom:5px}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0}.chip{border:1px solid #365f72;background:#123b50;padding:5px 8px;border-radius:20px;font-size:12px}.chip.must{border-color:var(--orange)}
+table{width:100%;border-collapse:collapse}th{text-align:left;color:var(--muted);font-size:12px;font-weight:normal;padding:9px;border-bottom:1px solid var(--line)}td{padding:11px 9px;border-bottom:1px solid #173b4d;vertical-align:top}tr.clickable{cursor:pointer}tr.clickable:hover{background:#0d3347}
+.badge{display:inline-block;padding:4px 7px;border-radius:12px;background:#123d52;font-size:11px}.green{color:var(--green)}.orange{color:var(--orange)}.amber{color:var(--amber)}
+.drawer{position:fixed;right:-520px;top:72px;width:500px;height:calc(100vh - 72px);background:#082536;border-left:1px solid var(--line);z-index:20;padding:22px;overflow:auto;transition:.2s}.drawer.open{right:0}.close{float:right;cursor:pointer;font-size:24px}.profile-head{padding-bottom:14px;border-bottom:1px solid var(--line)}.profile-head h2{font:30px Georgia,serif;margin:0 0 5px}.timeline{border-left:2px solid #31576a;margin-left:8px;padding-left:17px}.timeline div{margin:13px 0}
+.pipeline{display:grid;grid-template-columns:repeat(5,1fr);gap:9px}.stage{background:#082b3e;border:1px solid var(--line);border-radius:8px;padding:10px;min-height:220px}.stage h3{font-size:13px;color:var(--muted)}.person{background:#10384d;border-radius:6px;padding:9px;margin:8px 0;cursor:pointer}.person:hover{outline:1px solid #416d81}
+.wheels{grid-template-columns:repeat(3,1fr)}.wheelrow{display:flex;gap:18px;align-items:center}.donut{width:110px;height:110px;border-radius:50%;position:relative;background:conic-gradient(var(--orange) 0 34%,var(--blue) 34% 61%,var(--green) 61% 79%,var(--amber) 79% 100%)}.donut:after{content:"";position:absolute;inset:22px;background:#0a293a;border-radius:50%}.donut span{position:absolute;inset:0;display:grid;place-items:center;z-index:2;font:20px Georgia,serif}
+.search-result{display:grid;grid-template-columns:1.5fr .7fr .55fr .6fr;gap:10px;align-items:center;padding:12px 0;border-top:1px solid #173b4d}.evidence{display:flex;gap:5px;flex-wrap:wrap;margin-top:6px}.ev{font-size:11px;background:#11394d;padding:4px 6px;border-radius:4px}.score{font:23px Georgia,serif}.notice{padding:10px;border:1px solid #31576a;background:#0e3245;border-radius:7px;color:#c8d7df;margin:10px 0}.toolbar{display:flex;justify-content:space-between;gap:10px;align-items:center;margin-bottom:12px}.toolbar input{max-width:330px}
+.form-modal{position:fixed;inset:0;background:#0008;z-index:30;display:none;place-items:center}.form-modal.open{display:grid}.modalbox{width:min(620px,90vw);background:#082536;border:1px solid var(--line);border-radius:10px;padding:20px}.modalgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.muted{color:var(--muted)}
+@media(max-width:1100px){.kpis,.fields,.wheels,.three{grid-template-columns:1fr 1fr}.two{grid-template-columns:1fr}.pipeline{grid-template-columns:1fr 1fr}.shell{grid-template-columns:190px 1fr}}@media(max-width:750px){aside{display:none}.shell{grid-template-columns:1fr}.kpis,.fields,.wheels,.three,.pipeline{grid-template-columns:1fr}.drawer{width:100%}.search-result{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header><div class="brand"><b>H</b>HENNESSEY</div><div class="version">PLATFORM V4.2.2</div><div class="user"><span id="apiStatus" class="badge amber">API checking…</span> &nbsp; Paul Agar · Administrator</div></header>
+<div class="shell"><aside id="nav"></aside><main>
+
+<section class="page active" id="dashboard">
+<h1 class="title">Dashboard</h1><div class="sub">Executive search operating overview</div>
+<div class="grid kpis">
+<div class="card kpi"><div>Total Candidates</div><div class="num" id="candidateCount"></div><span class="green">Hennessey Network</span></div>
+<div class="card kpi"><div>Active Clients</div><div class="num" id="clientCount"></div></div>
+<div class="card kpi"><div>Live Mandates</div><div class="num" id="mandateCount"></div></div>
+<div class="card kpi"><div>Placements YTD</div><div class="num">26</div></div>
+<div class="card kpi"><div>Employees & Revenue</div><div class="num">4 <span style="font:16px Arial">employees</span></div><div>£1.2m <span class="muted">Revenue YTD</span></div></div>
+</div>
+<div class="grid wheels" style="margin-top:12px">
+<div class="card"><h3>Talent by Sector</h3><div class="wheelrow"><div class="donut"><span>1,842</span></div><div>Manufacturing 34%<br>Technology 27%<br>Services 18%<br>Other 21%</div></div></div>
+<div class="card"><h3>Talent by Function</h3><div class="wheelrow"><div class="donut"><span>1,842</span></div><div>HR 34%<br>Operations 27%<br>Commercial 18%<br>Other 21%</div></div></div>
+<div class="card"><h3>Mandate Status</h3><div class="wheelrow"><div class="donut"><span>18</span></div><div>Search 34%<br>Assessment 27%<br>Interview 18%<br>Offer/Placed 21%</div></div></div>
+</div>
+<div class="grid two" style="margin-top:12px"><div class="card"><h2>Priority Mandates</h2><div id="dashMandates"></div></div><div class="card"><h2>Recent Activity</h2><div>Today · Sarah Richardson added to shortlist</div><hr style="border-color:#24495b"><div>Yesterday · Apex Engineering mandate updated</div><hr style="border-color:#24495b"><div>22 Sep · New client relationship added</div></div></div>
+</section>
+
+<section class="page" id="search">
+<h1 class="title">AI Search</h1><div class="sub">Search Hennessey Network and the external market</div>
+<div class="grid two">
+<div class="card"><h2>Search Brief</h2><textarea id="brief">Find an HR Director within 60 miles of Birmingham. Manufacturing or engineering background. £100k–£140k. Multi-site experience essential. PE-backed and transformation experience desirable.</textarea>
+<div class="actions" style="margin-top:10px"><button class="btn primary" onclick="interpret()">Interpret Brief</button><button id="sourceNetwork" class="btn source-btn" onclick="runSearch('network',this)">Hennessey Network</button><button id="sourceExternal" class="btn source-btn" onclick="runSearch('external',this)">External Market</button><button id="sourceBoth" class="btn source-btn" onclick="runSearch('both',this)">Both</button><button class="btn" onclick="saveCurrentSearch()">Save Search</button></div>
+<div class="notice" id="searchNotice">External Market uses clearly labelled demonstration data until a licensed provider is connected.</div></div>
+<div class="card"><h2>Advanced Criteria</h2><div class="fields">
+<div class="field"><label>Function</label><input id="fFunction" value="Human Resources"></div><div class="field"><label>Seniority</label><select id="fSeniority"><option>Manager</option><option>Director</option><option>Head of</option><option>C-Suite</option></select></div>
+<div class="field"><label>Location</label><input id="fLocation" value="Birmingham"></div><div class="field"><label>Radius</label><select id="fRadius"><option>60 miles</option><option>30 miles</option><option>100 miles</option><option>UK-wide</option></select></div>
+<div class="field"><label>Sector</label><select id="fSector"><option>Manufacturing & Engineering</option><option>Defence & Aerospace</option><option>Healthcare & Life Sciences</option><option>Business & Professional Services</option><option>Technology & Digital</option><option>Financial Services</option><option>Energy & Utilities</option><option>Construction & Infrastructure</option><option>Consumer & Retail</option><option>Transport & Logistics</option><option>Public Sector</option></select></div>
+<div class="field"><label>Employment</label><select><option>Permanent</option><option>Interim</option><option>Fractional</option></select></div><div class="field"><label>Minimum</label><input value="£100,000"></div><div class="field"><label>Maximum</label><input value="£140,000"></div>
+</div><div class="chips"><span class="chip must">Essential · Multi-site</span><span class="chip">Desirable · PE-backed</span><span class="chip">Desirable · Transformation</span></div></div>
+</div>
+<div class="card" style="margin-top:12px"><div class="toolbar"><div><h2 style="margin:0">Results</h2><span class="muted" id="resultMeta">Run a search</span></div></div><div id="searchResults"></div></div>
+</section>
+
+<section class="page" id="crm"><h1 class="title">CRM & Relationships</h1><div class="sub">Relationship intelligence across clients and talent</div><div class="card"><div class="toolbar"><input id="crmQ" placeholder="Search relationships…" oninput="renderCRM()"><button class="btn primary" onclick="openModal('relationship')">+ Add Relationship</button></div><table><thead><tr><th>Name</th><th>Organisation</th><th>Relationship</th><th>Last Contact</th><th>Next Action</th></tr></thead><tbody id="crmRows"></tbody></table></div></section>
+
+<section class="page" id="mandates"><h1 class="title">Search Mandates</h1><div class="sub">Live executive and specialist search assignments</div><div class="card"><div class="toolbar"><input id="mandateQ" placeholder="Search mandates…" oninput="renderMandates()"><button class="btn primary" onclick="openModal('mandate')">+ New Mandate</button></div><table><thead><tr><th>Role</th><th>Client</th><th>Stage</th><th>Lead</th><th>Fee</th><th>Shortlist</th></tr></thead><tbody id="mandateRows"></tbody></table></div></section>
+
+<section class="page" id="network"><h1 class="title">The Hennessey Network</h1><div class="sub">Owned talent relationships and candidate intelligence</div><div class="card"><div class="toolbar"><input id="networkQ" placeholder="Search candidates…" oninput="renderNetwork()"><button class="btn primary" onclick="openModal('candidate')">+ Add Candidate</button></div><table><thead><tr><th>Candidate</th><th>Current Role</th><th>Sector</th><th>Location</th><th>Status</th></tr></thead><tbody id="networkRows"></tbody></table></div></section>
+
+<section class="page" id="clients"><h1 class="title">Clients</h1><div class="sub">Client accounts, contacts and search history</div><div class="card"><div class="toolbar"><input id="clientQ" placeholder="Search clients…" oninput="renderClients()"><button class="btn primary" onclick="openModal('client')">+ Add Client</button></div><table><thead><tr><th>Client</th><th>Sector</th><th>Relationship</th><th>Live Mandates</th><th>Revenue YTD</th></tr></thead><tbody id="clientRows"></tbody></table></div></section>
+
+<section class="page" id="pipeline"><h1 class="title">Talent Pipeline</h1><div class="sub">Candidates progressing through active assignments</div><div id="pipelineBoard" class="pipeline"></div></section>
+
+<section class="page" id="market"><h1 class="title">Market Intelligence</h1><div class="sub">Search-derived executive talent intelligence</div><div class="grid three"><div class="card"><h3>Leadership Movement</h3><div class="num">18</div><p class="muted">Tracked senior moves this month</p></div><div class="card"><h3>Average HRD Base</h3><div class="num">£128k</div><p class="muted">Illustrative Midlands manufacturing benchmark</p></div><div class="card"><h3>Talent Availability</h3><div class="num">Moderate</div><p class="muted">Based on prototype search activity</p></div></div><div class="card" style="margin-top:12px"><h2>Intelligence Notes</h2><textarea id="intelNotes" oninput="localStorage.setItem('h41_intel',this.value)">Manufacturing leadership searches continue to favour multi-site transformation experience. PE-backed exposure remains a differentiator for People Director mandates.</textarea></div></section>
+
+<section class="page" id="reports"><h1 class="title">Insights & Reports</h1><div class="sub">Commercial and search performance</div><div class="grid three"><div class="card"><h3>Revenue YTD</h3><div class="num">£1.2m</div></div><div class="card"><h3>Average Fee</h3><div class="num">£46k</div></div><div class="card"><h3>Placement Conversion</h3><div class="num">68%</div></div></div><div class="card" style="margin-top:12px"><h2>Report Centre</h2><div class="actions"><button class="btn" onclick="alert('Prototype: Board report queued for export.')">Board Performance Report</button><button class="btn" onclick="alert('Prototype: Mandate report queued for export.')">Mandate Performance</button><button class="btn" onclick="alert('Prototype: Client report queued for export.')">Client Revenue</button><button class="btn" onclick="alert('Prototype: Talent report queued for export.')">Talent Intelligence</button></div></div></section>
+
+
+<section class="page" id="setup"><h1 class="title">Live Setup</h1><div class="sub">Connect the secure Hennessey application services</div>
+<div class="grid two">
+<div class="card"><h2>1 · Run as an application</h2><p>V4.2.1 includes a Node server. Live AI cannot run when the HTML file is opened directly.</p>
+<div class="notice"><b>Local test:</b><br><code>npm install</code><br><code>npm start</code><br>Then open <code>http://localhost:3001</code>.</div>
+<h3>Deployment</h3><p class="muted">Deploy this folder to a Node-compatible host. Add environment variables in the host's secure settings rather than editing the HTML.</p></div>
+<div class="card"><h2>2 · Secure credentials</h2><p><b>OPENAI_API_KEY</b><br><span class="muted">Enables live AI brief interpretation.</span></p><p><b>OPENAI_MODEL</b><br><span class="muted">Defaults to gpt-6-luna.</span></p><p><b>PDL_API_KEY</b><br><span class="muted">Enables the licensed external-market adapter after provider validation.</span></p><div class="notice">Never place API keys in browser code or send them in chat.</div></div>
+</div>
+<div class="card" style="margin-top:12px"><h2>Connection Test</h2><div class="actions"><button class="btn primary" onclick="checkAPI();setTimeout(()=>alert('Connection status refreshed. See the badge at the top right.'),300)">Test Connections</button></div><p class="muted">The top-right badge changes from DEMO MODE to API CONNECTED / AI CONNECTED / LIVE SEARCH READY as services become available.</p></div>
+</section>
+
+<section class="page" id="settings"><h1 class="title">Settings</h1><div class="sub">Platform configuration and integrations</div><div class="grid two"><div class="card"><h2>Search Connections</h2><p>OpenAI intelligence layer</p><span class="badge amber">Backend credential required</span><p>External people-data provider</p><span class="badge amber">Licensed provider required</span><p>Hennessey Network</p><span class="badge green">Prototype connected</span></div><div class="card"><h2>Organisation</h2><div class="field"><label>Company</label><input value="Hennessey Search"></div><br><div class="field"><label>Employees</label><input value="4"></div><br><div class="field"><label>Revenue YTD</label><input value="£1,200,000"></div></div></div></section>
+
+</main></div>
+
+<div class="drawer" id="drawer"><span class="close" onclick="closeDrawer()">×</span><div id="drawerBody"></div></div>
+<div class="form-modal" id="modal"><div class="modalbox"><span class="close" onclick="closeModal()">×</span><h2 id="modalTitle">Add</h2><div id="modalFields"></div><div class="actions" style="margin-top:14px"><button class="btn primary" onclick="saveModal()">Save</button><button class="btn" onclick="closeModal()">Cancel</button></div></div></div>
+
+<script>
+const navItems=[['dashboard','Dashboard'],['search','AI Search'],['crm','CRM & Relationships'],['mandates','Search Mandates'],['network','The Hennessey Network'],['clients','Clients'],['pipeline','Talent Pipeline'],['market','Market Intelligence'],['reports','Insights & Reports'],['setup','Live Setup'],['settings','Settings']];
+document.getElementById('nav').innerHTML=navItems.map((x,i)=>`<div class="nav ${i===0?'active':''}" data-page="${x[0]}">${x[1]}</div>`).join('');
+document.querySelectorAll('.nav').forEach(n=>n.onclick=()=>showPage(n.dataset.page));
+function showPage(id){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.getElementById(id).classList.add('active');document.querySelectorAll('.nav').forEach(n=>n.classList.toggle('active',n.dataset.page===id));closeDrawer()}
+
+let candidates=JSON.parse(localStorage.getItem('h41_candidates')||'null')||[
+{id:1,name:'Sarah Richardson',role:'People Director',company:'Midlands Advanced Manufacturing Group',sector:'Manufacturing',loc:'Birmingham',status:'Shortlist',source:'Hennessey Network',score:91,skills:['Multi-site','Transformation','PE-backed']},
+{id:2,name:'Andrew Shaw',role:'HR Director UK & Europe',company:'Engineering Services Group',sector:'Engineering',loc:'Warwickshire',status:'Interview',source:'Hennessey Network',score:82,skills:['International','M&A','Engineering']},
+{id:3,name:'Helen Morris',role:'Group People Director',company:'Industrial Components plc',sector:'Manufacturing',loc:'Worcestershire',status:'Longlist',source:'External Market',score:84,skills:['Multi-site','International','Manufacturing']},
+{id:4,name:'Rebecca Jones',role:'People & Culture Director',company:'PE-backed Manufacturing Co.',sector:'Manufacturing',loc:'Staffordshire',status:'Approached',source:'External Market',score:80,skills:['PE-backed','Transformation']},
+{id:5,name:'James Carter',role:'HR Director',company:'Precision Engineering Holdings',sector:'Engineering',loc:'Coventry',status:'Identified',source:'External Market',score:88,skills:['Multi-site','Transformation','Engineering']}
+];
+let clients=JSON.parse(localStorage.getItem('h41_clients')||'null')||[
+{id:1,name:'Apex Engineering Group',sector:'Engineering',relationship:'Strategic',live:2,revenue:'£184,000'},
+{id:2,name:'Meridian Manufacturing',sector:'Manufacturing',relationship:'Established',live:1,revenue:'£96,000'},
+{id:3,name:'Northstar Services',sector:'Business Services',relationship:'Developing',live:1,revenue:'£54,000'},
+{id:4,name:'Helix Healthcare',sector:'Healthcare',relationship:'Established',live:0,revenue:'£78,000'}
+];
+let mandates=JSON.parse(localStorage.getItem('h41_mandates')||'null')||[
+{id:1,role:'HR Director',client:'Apex Engineering Group',stage:'Shortlist',lead:'Paul Agar',fee:'£48,000',shortlist:5},
+{id:2,role:'Operations Director',client:'Meridian Manufacturing',stage:'Search',lead:'Paul Agar',fee:'£52,000',shortlist:3},
+{id:3,role:'Commercial Director',client:'Northstar Services',stage:'Interview',lead:'Team',fee:'£42,000',shortlist:4},
+{id:4,role:'People Director',client:'Helix Healthcare',stage:'Offer',lead:'Team',fee:'£55,000',shortlist:2}
+];
+let relationships=JSON.parse(localStorage.getItem('h41_crm')||'null')||[
+{name:'David Morgan',org:'Apex Engineering Group',type:'Client Sponsor',last:'21 Sep 2026',next:'Shortlist review'},
+{name:'Sarah Richardson',org:'Midlands Advanced Manufacturing Group',type:'Candidate',last:'23 Sep 2026',next:'Discuss mandate'},
+{name:'Emma Clarke',org:'Meridian Manufacturing',type:'Client HR',last:'19 Sep 2026',next:'Market update'}
+];
+function persist(){localStorage.setItem('h41_candidates',JSON.stringify(candidates));localStorage.setItem('h41_clients',JSON.stringify(clients));localStorage.setItem('h41_mandates',JSON.stringify(mandates));localStorage.setItem('h41_crm',JSON.stringify(relationships))}
+function esc(s){return String(s??'').replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]))}
+function renderAll(){candidateCount.textContent='1,842';clientCount.textContent=clients.length;mandateCount.textContent=mandates.length;renderNetwork();renderClients();renderMandates();renderCRM();renderPipeline();dashMandates.innerHTML=mandates.slice(0,4).map(m=>`<div style="padding:9px 0;border-bottom:1px solid #173b4d"><b>${esc(m.role)}</b> · ${esc(m.client)} <span class="badge">${esc(m.stage)}</span></div>`).join('')}
+function renderNetwork(){let q=(networkQ?.value||'').toLowerCase();networkRows.innerHTML=candidates.filter(c=>(c.name+c.role+c.company+c.sector+c.loc).toLowerCase().includes(q)).map(c=>`<tr class="clickable" onclick="openCandidate(${c.id})"><td><b>${esc(c.name)}</b><br><span class="muted">${esc(c.company)}</span></td><td>${esc(c.role)}</td><td>${esc(c.sector)}</td><td>${esc(c.loc)}</td><td><span class="badge">${esc(c.status)}</span></td></tr>`).join('')}
+function renderClients(){let q=(clientQ?.value||'').toLowerCase();clientRows.innerHTML=clients.filter(c=>(c.name+c.sector).toLowerCase().includes(q)).map(c=>`<tr class="clickable" onclick="openClient(${c.id})"><td><b>${esc(c.name)}</b></td><td>${esc(c.sector)}</td><td>${esc(c.relationship)}</td><td>${c.live}</td><td>${esc(c.revenue)}</td></tr>`).join('')}
+function renderMandates(){let q=(mandateQ?.value||'').toLowerCase();mandateRows.innerHTML=mandates.filter(m=>(m.role+m.client+m.stage).toLowerCase().includes(q)).map(m=>`<tr class="clickable" onclick="openMandate(${m.id})"><td><b>${esc(m.role)}</b></td><td>${esc(m.client)}</td><td><span class="badge">${esc(m.stage)}</span></td><td>${esc(m.lead)}</td><td>${esc(m.fee)}</td><td>${m.shortlist}</td></tr>`).join('')}
+function renderCRM(){let q=(crmQ?.value||'').toLowerCase();crmRows.innerHTML=relationships.filter(r=>(r.name+r.org+r.type).toLowerCase().includes(q)).map(r=>`<tr><td><b>${esc(r.name)}</b></td><td>${esc(r.org)}</td><td>${esc(r.type)}</td><td>${esc(r.last)}</td><td>${esc(r.next)}</td></tr>`).join('')}
+function renderPipeline(){let stages=['Identified','Approached','Longlist','Shortlist','Interview'];pipelineBoard.innerHTML=stages.map(s=>`<div class="stage"><h3>${s}</h3>${candidates.filter(c=>c.status===s).map(c=>`<div class="person" onclick="openCandidate(${c.id})"><b>${esc(c.name)}</b><br><span class="muted">${esc(c.role)}</span></div>`).join('')}</div>`).join('')}
+function openCandidate(id){let c=candidates.find(x=>x.id===id);drawerBody.innerHTML=`<div class="profile-head"><h2>${esc(c.name)}</h2><div>${esc(c.role)} · ${esc(c.company)}</div><div class="muted">${esc(c.loc)} · ${esc(c.sector)}</div></div><h3>Alignment</h3><div class="score">${c.score}%</div><div class="chips">${c.skills.map(x=>`<span class="chip">✓ ${esc(x)}</span>`).join('')}</div><h3>Relationship</h3><p>Source: ${esc(c.source)}</p><p>Status: <span class="badge">${esc(c.status)}</span></p><h3>Career Timeline</h3><div class="timeline"><div><b>Current</b><br>${esc(c.role)} · ${esc(c.company)}</div><div><b>Previous</b><br>Senior people leadership role</div></div><h3>Notes</h3><div id="candidateNotes">${(c.notes||[]).length?(c.notes||[]).map(n=>`<div style="padding:8px 0;border-bottom:1px solid #173b4d"><div>${esc(n.text)}</div><div class="muted" style="font-size:11px;margin-top:3px">${esc(n.date)}</div></div>`).join(''):'<p class="muted">No notes added yet.</p>'}</div><div class="actions" style="margin-top:12px"><button class="btn primary" onclick="advanceCandidate(${c.id})">Advance Stage</button><button class="btn" onclick="addCandidateNote(${c.id})">Add Note</button></div>`;drawer.classList.add('open')}
+function advanceCandidate(id){let order=['Identified','Approached','Longlist','Shortlist','Interview','Offer'];let c=candidates.find(x=>x.id===id);c.status=order[Math.min(order.indexOf(c.status)+1,order.length-1)];persist();renderAll();openCandidate(id)}
+function openClient(id){let c=clients.find(x=>x.id===id),ms=mandates.filter(m=>m.client===c.name);drawerBody.innerHTML=`<div class="profile-head"><h2>${esc(c.name)}</h2><div>${esc(c.sector)} · ${esc(c.relationship)} relationship</div></div><h3>Commercial</h3><p>Revenue YTD: <b>${esc(c.revenue)}</b></p><p>Live mandates: <b>${c.live}</b></p><h3>Mandates</h3>${ms.map(m=>`<p><b>${esc(m.role)}</b> · ${esc(m.stage)} · ${esc(m.fee)}</p>`).join('')||'<p class="muted">No live mandates.</p>'}`;drawer.classList.add('open')}
+function openMandate(id){let m=mandates.find(x=>x.id===id);drawerBody.innerHTML=`<div class="profile-head"><h2>${esc(m.role)}</h2><div>${esc(m.client)}</div></div><h3>Mandate</h3><p>Stage: <span class="badge">${esc(m.stage)}</span></p><p>Lead: ${esc(m.lead)}</p><p>Fee: <b>${esc(m.fee)}</b></p><p>Shortlist: ${m.shortlist}</p><div class="actions"><button class="btn primary" onclick="showPage('search');closeDrawer()">Search Talent</button><button class="btn" onclick="showPage('pipeline');closeDrawer()">View Pipeline</button></div>`;drawer.classList.add('open')}
+function addCandidateNote(id){
+ let c=candidates.find(x=>x.id===id);
+ if(!c)return;
+ let note=prompt('Add a note for '+c.name+':');
+ if(!note||!note.trim())return;
+ c.notes=c.notes||[];
+ c.notes.unshift({text:note.trim(),date:new Date().toLocaleString('en-GB')});
+ persist();
+ renderAll();
+ openCandidate(id);
+}
+function closeDrawer(){drawer.classList.remove('open')}
+const demoExternal=candidates.filter(c=>c.source==='External Market'),demoNetwork=candidates.filter(c=>c.source==='Hennessey Network');
+async function interpret(){
+ searchNotice.textContent='Interpreting brief…';
+ try{
+   const r=await fetch('/api/search/interpret',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({brief:brief.value})});
+   if(!r.ok) throw new Error((await r.json()).error||'API unavailable');
+   const d=await r.json();
+   if(d.function)fFunction.value=d.function;
+   if(d.seniority&&[...fSeniority.options].some(o=>o.value===d.seniority))fSeniority.value=d.seniority;
+   if(d.locations?.[0])fLocation.value=d.locations[0];
+   if(d.radius_miles)fRadius.value=d.radius_miles+' miles';
+   searchNotice.textContent='Live AI interpretation complete. Review the criteria, then choose a search source.';
+ }catch(e){
+   let b=brief.value.toLowerCase();
+   if(b.includes('hr director')){fFunction.value='Human Resources';fSeniority.value='Director'}
+   if(b.includes('manager')&&[...fSeniority.options].some(o=>o.value==='Manager'))fSeniority.value='Manager';
+   if(b.includes('birmingham'))fLocation.value='Birmingham';
+   searchNotice.textContent='Search brief interpreted locally. Live AI Search is not connected in this preview. Run the hosted application to enable live interpretation.';
+ }
+}
+async function runSearch(mode,btn){
+ document.querySelectorAll('.source-btn').forEach(b=>b.classList.remove('primary'));if(btn)btn.classList.add('primary');
+ let arr=mode==='network'?demoNetwork:mode==='external'?demoExternal:candidates;
+ let liveExternal=false;
+ if(mode==='external'||mode==='both'){
+   try{
+     searchNotice.textContent='Searching external market…';
+     const criteria={function:fFunction.value,seniority:fSeniority.value,locations:[fLocation.value],radius:fRadius.value,sector:fSector.value};
+     const r=await fetch('/api/search/external',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(criteria)});
+     if(r.ok){
+       const d=await r.json();
+       if(Array.isArray(d.candidates)&&d.candidates.length){
+         liveExternal=true;
+         const ext=d.candidates.map((x,i)=>({id:'ext'+i,name:x.name||'Profile',role:x.role||'',company:x.company||'',sector:x.sector||'',loc:x.location||'',status:'Identified',source:'External Market',score:x.score||0,skills:x.evidence||[],url:x.profile_url||''}));
+         arr=mode==='external'?ext:[...demoNetwork,...ext];
+       }
+     }
+   }catch(e){}
+ }
+ resultMeta.textContent=`${arr.length} ${liveExternal?'live':'demonstration'} results · ${mode==='both'?'Network + External Market':mode==='network'?'Hennessey Network':'External Market'}`;
+ searchNotice.textContent=liveExternal?'Live external provider results returned.':'External Market is not connected in this preview. Demonstration results are shown and clearly labelled.';
+ searchResults.innerHTML=arr.map(c=>`<div class="search-result"><div><b>${esc(c.name)}</b><div class="muted">${esc(c.role)} · ${esc(c.company)} · ${esc(c.loc)}</div><div class="evidence">${(c.skills||[]).map((s,i)=>`<span class="ev">${i<2?'✓ Verified':'△ Inferred'} · ${esc(s)}</span>`).join('')}</div></div><div>${esc(c.source)}</div><div class="score">${c.score||'—'}${c.score?'%':''}</div><div>${String(c.id).startsWith('ext')?`<button class="btn small" onclick="saveExternal('${encodeURIComponent(JSON.stringify(c))}')">Save to Network</button>`:`<button class="btn small" onclick="openCandidate(${c.id})">Profile</button>`}</div></div>`).join('');
+}
+function saveExternal(encoded){
+ const c=JSON.parse(decodeURIComponent(encoded));c.id=Date.now();c.source='Hennessey Network';c.status='Identified';candidates.push(c);persist();renderAll();searchNotice.textContent=c.name+' saved to Hennessey Network.';
+}
+function saveCurrentSearch(){let searches=JSON.parse(localStorage.getItem('h41_searches')||'[]');searches.push({brief:brief.value,date:new Date().toISOString()});localStorage.setItem('h41_searches',JSON.stringify(searches));searchNotice.textContent='Search saved in this browser.'}
+let modalType='';
+function openModal(type){modalType=type;let maps={candidate:['Name','Role','Company','Sector','Location'],client:['Client Name','Sector','Relationship','Revenue YTD'],mandate:['Role','Client','Stage','Fee'],relationship:['Name','Organisation','Relationship','Next Action']};modalTitle.textContent='Add '+type.charAt(0).toUpperCase()+type.slice(1);modalFields.innerHTML=`<div class="modalgrid">${maps[type].map((x,i)=>`<div class="field"><label>${x}</label><input id="mf${i}"></div>`).join('')}</div>`;modal.classList.add('open')}
+function closeModal(){modal.classList.remove('open')}
+function saveModal(){let v=i=>document.getElementById('mf'+i).value.trim();if(!v(0))return alert('Please enter a name/title.');if(modalType==='candidate')candidates.push({id:Date.now(),name:v(0),role:v(1),company:v(2),sector:v(3),loc:v(4),status:'Identified',source:'Hennessey Network',score:0,skills:[]});if(modalType==='client')clients.push({id:Date.now(),name:v(0),sector:v(1),relationship:v(2),live:0,revenue:v(3)});if(modalType==='mandate')mandates.push({id:Date.now(),role:v(0),client:v(1),stage:v(2)||'Search',lead:'Paul Agar',fee:v(3),shortlist:0});if(modalType==='relationship')relationships.push({name:v(0),org:v(1),type:v(2),last:'Today',next:v(3)});persist();renderAll();closeModal()}
+async function checkAPI(){try{let r=await fetch('/api/health');if(!r.ok)throw 0;let d=await r.json();apiStatus.textContent=d.external_provider_configured?'LIVE SEARCH READY':d.openai_configured?'AI CONNECTED':'API CONNECTED';apiStatus.className='badge '+(d.external_provider_configured?'green':'amber')}catch(e){apiStatus.textContent='DEMO MODE';apiStatus.className='badge amber'}}
+intelNotes.value=localStorage.getItem('h41_intel')||intelNotes.value;renderAll();checkAPI();
+</script>
+</body></html>
