@@ -9,7 +9,7 @@ app.use(cors());
 app.use(express.json({ limit: "1mb" }));
 app.use(express.static("."));
 
-const VERSION = "4.3.1";
+const VERSION = "4.3.2";
 const model = process.env.OPENAI_MODEL || "gpt-5.6-luna";
 const hasOpenAI = Boolean(process.env.OPENAI_API_KEY);
 const hasExternal = Boolean(process.env.PDL_API_KEY);
@@ -45,7 +45,8 @@ app.get("/api/providers", (req,res) => res.json({
 app.post("/api/search/strategy", async (req,res) => {
  const tag=`strategy-${Date.now().toString(36)}`; const c=req.body||{};
  console.log(`[AI STRATEGY] ${tag} received; model=${model}; function=${c.function||""}; seniority=${c.seniority||""}`);
- if(!openai) return res.status(503).json({error:"OpenAI is not configured on the server."});
+ if(!openai) return res.status(503).json({error:"OpenAI is not configured on the server.",category:"configuration"});
+ if(!c.brief && !c.function && !c.seniority) return res.status(400).json({error:"Add or interpret a search brief before building the strategy.",category:"validation"});
  const schema={type:"object",additionalProperties:false,properties:{target_titles:{type:"array",items:{type:"string"}},adjacent_sectors:{type:"array",items:{type:"string"}},target_company_characteristics:{type:"array",items:{type:"string"}},evidence_priorities:{type:"array",items:{type:"string"}},exclusions:{type:"array",items:{type:"string"}}},required:["target_titles","adjacent_sectors","target_company_characteristics","evidence_priorities","exclusions"]};
  try{
   const response=await openai.responses.create({model,reasoning:{effort:"low"},input:[
