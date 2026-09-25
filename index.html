@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Hennessey Platform V4.3.2</title>
+<title>Hennessey Platform V4.3.3</title>
 <style>
 :root{--bg:#061b29;--panel:#0a293a;--panel2:#0d3246;--line:#24495b;--orange:#ff5b2d;--text:#f4f7f8;--muted:#9fb5c1;--green:#73d58b;--amber:#f1bb4c;--blue:#6da8dd}
 *{box-sizing:border-box}body{margin:0;background:linear-gradient(135deg,#051824,#082638);color:var(--text);font:14px Arial,sans-serif}
@@ -26,7 +26,7 @@ table{width:100%;border-collapse:collapse}th{text-align:left;color:var(--muted);
 </style>
 </head>
 <body>
-<header><div class="brand"><b>H</b>HENNESSEY</div><div class="version">PLATFORM V4.3.2</div><div class="user"><span id="apiStatus" class="badge amber">API checking…</span> &nbsp; Paul Agar · Administrator</div></header>
+<header><div class="brand"><b>H</b>HENNESSEY</div><div class="version">PLATFORM V4.3.3</div><div class="user"><span id="apiStatus" class="badge amber">API checking…</span> &nbsp; Paul Agar · Administrator</div></header>
 <div class="shell"><aside id="nav"></aside><main>
 
 <section class="page active" id="dashboard">
@@ -61,7 +61,7 @@ table{width:100%;border-collapse:collapse}th{text-align:left;color:var(--muted);
 </div>
 <div class="grid two" style="margin-top:12px">
 <div class="card"><div class="toolbar"><div><h2 style="margin:0">Search Strategy</h2><span class="muted">AI research plan before candidate search</span></div><span class="badge" id="strategyStatus">Not built</span></div><div id="strategyPanel"><p class="muted">Click Build Search Strategy to expand titles, sectors, target-company characteristics and exclusions from the brief.</p></div></div>
-<div class="card"><div class="toolbar"><div><h2 style="margin:0">Market Map</h2><span class="muted">Counts are derived from returned search data, never invented by AI</span></div></div><div class="grid three"><div><div class="num" id="mapPool">—</div><span class="muted">Returned pool</span></div><div><div class="num" id="mapCore">—</div><span class="muted">Core evidence</span></div><div><div class="num" id="mapRelationship">—</div><span class="muted">Known relationships</span></div></div><div id="mapBreakdown" class="muted" style="margin-top:12px">Run a search to populate the market map.</div></div>
+<div class="card"><div class="toolbar"><div><h2 style="margin:0">Market Map</h2><span class="muted">Counts are derived from returned search data, never invented by AI. Compensation: Verified / Estimated / Not evidenced. Geography: Within target area / Outside target area / Location uncertain.</span></div></div><div class="grid three"><div><div class="num" id="mapPool">—</div><span class="muted">Returned pool</span></div><div><div class="num" id="mapCore">—</div><span class="muted">Core evidence</span></div><div><div class="num" id="mapRelationship">—</div><span class="muted">Known relationships</span></div></div><div id="mapBreakdown" class="muted" style="margin-top:12px">Run a search to populate the market map.</div></div>
 </div>
 <div class="card" style="margin-top:12px"><div class="toolbar"><div><h2 style="margin:0">Results</h2><span class="muted" id="resultMeta">Run a search</span></div></div><div id="searchResults"></div></div>
 </section>
@@ -185,7 +185,13 @@ async function buildStrategy(event){
   const criteria={brief:brief.value,function:fFunction.value,seniority:fSeniority.value,location:fLocation.value,radius:fRadius.value,sector:fSector.value,essential:[...document.querySelectorAll('#essentialChips .chip')].map(x=>x.textContent.replace(/^Essential · /,'')),desirable:[...document.querySelectorAll('#desirableChips .chip')].map(x=>x.textContent.replace(/^Desirable · /,''))};
   const r=await fetch('/api/search/strategy',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(criteria)}); const d=await r.json(); if(!r.ok)throw new Error(d.error||'Strategy unavailable');
   strategyStatus.textContent='AI strategy ready';
-  strategyPanel.innerHTML=`<h3>Target titles</h3><div class="chips">${d.target_titles.map(x=>`<span class="chip" contenteditable="true">${esc(x)}</span>`).join('')}</div><h3>Adjacent sectors</h3><div class="chips">${d.adjacent_sectors.map(x=>`<span class="chip" contenteditable="true">${esc(x)}</span>`).join('')}</div><h3>Target organisation characteristics</h3><div class="chips">${d.target_company_characteristics.map(x=>`<span class="chip" contenteditable="true">${esc(x)}</span>`).join('')}</div><h3>Evidence priorities</h3><div class="chips">${d.evidence_priorities.map(x=>`<span class="chip must" contenteditable="true">${esc(x)}</span>`).join('')}</div>${d.exclusions.length?`<h3>Exclusions</h3><div class="chips">${d.exclusions.map(x=>`<span class="chip" contenteditable="true">${esc(x)}</span>`).join('')}</div>`:''}`;
+  strategyPanel.innerHTML=`<h3>Target titles</h3><div class="chips">${d.target_titles.map(x=>`<span class="chip" contenteditable="true">${esc(x)}</span>`).join('')}</div>
+  <h3>Adjacent sectors</h3><div class="chips">${d.adjacent_sectors.map(x=>`<span class="chip" contenteditable="true">${esc(x)}</span>`).join('')}</div>
+  <h3>Target organisation characteristics</h3><div class="chips">${d.target_company_characteristics.map(x=>`<span class="chip" contenteditable="true">${esc(x)}</span>`).join('')}</div>
+  <h3>Evidence priorities</h3><div class="chips">${d.evidence_priorities.map(x=>`<span class="chip must" contenteditable="true">${esc(x)}</span>`).join('')}</div>
+  <h3>Evidence rules</h3><div class="notice"><strong>Compensation:</strong> ${esc(d.compensation_rule)}<br><strong>Geography:</strong> ${esc(d.geography_rule)}</div>
+  ${d.hard_exclusions.length?`<h3>Hard exclusions</h3><div class="chips">${d.hard_exclusions.map(x=>`<span class="chip must" contenteditable="true">${esc(x)}</span>`).join('')}</div>`:''}
+  ${d.research_flags.length?`<h3>Research flags</h3><div class="chips">${d.research_flags.map(x=>`<span class="chip" contenteditable="true">${esc(x)}</span>`).join('')}</div>`:''}`;
  }catch(e){
    console.error('[SEARCH STRATEGY] failed',e);
    strategyStatus.textContent='Unavailable';

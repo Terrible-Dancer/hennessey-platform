@@ -9,7 +9,7 @@ app.use(cors());
 app.use(express.json({ limit: "1mb" }));
 app.use(express.static("."));
 
-const VERSION = "4.3.2";
+const VERSION = "4.3.3";
 const model = process.env.OPENAI_MODEL || "gpt-5.6-luna";
 const hasOpenAI = Boolean(process.env.OPENAI_API_KEY);
 const hasExternal = Boolean(process.env.PDL_API_KEY);
@@ -47,10 +47,19 @@ app.post("/api/search/strategy", async (req,res) => {
  console.log(`[AI STRATEGY] ${tag} received; model=${model}; function=${c.function||""}; seniority=${c.seniority||""}`);
  if(!openai) return res.status(503).json({error:"OpenAI is not configured on the server.",category:"configuration"});
  if(!c.brief && !c.function && !c.seniority) return res.status(400).json({error:"Add or interpret a search brief before building the strategy.",category:"validation"});
- const schema={type:"object",additionalProperties:false,properties:{target_titles:{type:"array",items:{type:"string"}},adjacent_sectors:{type:"array",items:{type:"string"}},target_company_characteristics:{type:"array",items:{type:"string"}},evidence_priorities:{type:"array",items:{type:"string"}},exclusions:{type:"array",items:{type:"string"}}},required:["target_titles","adjacent_sectors","target_company_characteristics","evidence_priorities","exclusions"]};
+ const schema={type:"object",additionalProperties:false,properties:{
+   target_titles:{type:"array",items:{type:"string"}},
+   adjacent_sectors:{type:"array",items:{type:"string"}},
+   target_company_characteristics:{type:"array",items:{type:"string"}},
+   evidence_priorities:{type:"array",items:{type:"string"}},
+   hard_exclusions:{type:"array",items:{type:"string"}},
+   research_flags:{type:"array",items:{type:"string"}},
+   compensation_rule:{type:"string"},
+   geography_rule:{type:"string"}
+  },required:["target_titles","adjacent_sectors","target_company_characteristics","evidence_priorities","hard_exclusions","research_flags","compensation_rule","geography_rule"]};
  try{
   const response=await openai.responses.create({model,reasoning:{effort:"low"},input:[
-   {role:"system",content:[{type:"input_text",text:"You are an executive-search research strategist. Expand a search brief into a concise research strategy. Preserve the user's essential/desirable distinctions. Suggest adjacent job titles and sectors only where professionally plausible. Target-company characteristics may include ownership, scale, multi-site or international profile when relevant. Do not invent candidate counts, named people, or factual claims about companies. Exclusions must come from the brief or be safe search-noise exclusions, not subjective discrimination."}]},
+   {role:"system",content:[{type:"input_text",text:"You are an executive-search research strategist. Expand a search brief into a concise research strategy. Preserve essential versus desirable criteria. Suggest adjacent job titles and sectors only where professionally plausible. Do not invent candidate counts, named people, compensation, or factual claims about companies. Compensation evidence must be classified only as Verified when supported by a reliable source, Estimated when a clearly identified estimate exists, or Not evidenced; never infer compensation from title or seniority. Geography is a ranking and research factor, not an automatic exclusion unless the user explicitly makes it a hard requirement: classify profiles as Within target area, Outside target area, or Location uncertain. Separate true hard exclusions from research flags requiring consultant judgement. Avoid discriminatory or protected-characteristic criteria."}]},
    {role:"user",content:[{type:"input_text",text:JSON.stringify(c)}]}
   ],text:{format:{type:"json_schema",name:"search_strategy",strict:true,schema}}});
   const parsed=JSON.parse(response.output_text); console.log(`[AI STRATEGY] ${tag} success`); res.json(parsed);
